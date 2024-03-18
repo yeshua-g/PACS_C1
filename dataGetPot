@@ -1,0 +1,17 @@
+[Method]
+choice = Gradient
+
+[Gradient parameters]
+Alpha0 = 0.1
+Mu = 0.2
+EpsilonR = 1e-6
+EpsilonS = 1e-6
+MaxIterations = 1000
+StepSizeMethod = ExponentialDecay
+UseNumericalGradient = false
+Strategy = Armijo
+
+[Function]
+Function  = "x1 * x2 + 4 * x1^4 + x2^2 + 3*x1"
+ExactGrad = "x2 + 16*x1 + 3, x1 + 2*x2"
+Dimension = 2

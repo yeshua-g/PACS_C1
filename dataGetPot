@@ -1,17 +1,23 @@
 [Method]
-choice = Gradient
+choice = 'Gradient' 
 
-[Gradient parameters]
-Alpha0 = 0.1
+
+[GradientParameters]
+Alpha0 = 0.05
 Mu = 0.2
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
-StepSizeMethod = ExponentialDecay
+Sigma= 0.2
+StepSizeMethod = 'ApproximateLineSearch'
 UseNumericalGradient = false
-Strategy = Armijo
+Strategy = 'Armijo'
+
 
 [Function]
-Function  = "x1 * x2 + 4 * x1^4 + x2^2 + 3*x1"
-ExactGrad = "x2 + 16*x1 + 3, x1 + 2*x2"
+Expression = 'x1*x2 + 4*x1^4 + x2^2 + 3*x1'
+ExactGrad0 = 'x2 + 16*x1^3 +3'
+ExactGrad1 = 'x1 + 2*x2'
 Dimension = 2
+x_00 = 0.
+x_01 = 0.

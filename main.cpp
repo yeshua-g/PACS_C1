@@ -1,22 +1,26 @@
-#include "GetPot"
-#include <Eigen>
+#include "gradient.hpp"
 
 int main(){
+    OptimizationParameters data=read_optimization_parameters("dataGetPot");
 
-    GetPot data("dataGetPot");
+    std::vector<double> res(data.dimension);
+
+    switch (data.step_size_strategy) {
+        case StepSizeStrategy::ExponentialDecay:
+            res = gradient_descent<StepSizeStrategy::ExponentialDecay>(data);
+            break;
+        case StepSizeStrategy::InverseDecay:
+            res = gradient_descent<StepSizeStrategy::InverseDecay>(data);
+            break;
+        case StepSizeStrategy::ApproximateLineSearch:
+            res = gradient_descent<StepSizeStrategy::ApproximateLineSearch>(data);
+            break;
+    }
+
+
+    print(res);
     
-    if(data("Method/choice","err")==std::string("Gradient")){
-        //Gradient descent method
-    }
-    else if(data("Method/choice","err")==std::string("Heavy-ball")){
-       //Heavy_ball method
-    }
-    else if(data("Method/choice","err")==std::string("Nesterov")){
-        //Nesterov method
-    }
-    else if(data("Method/choice","err")==std::string("Adam")){
-        //Adam method
-    }else std::cerr << "Declared method not valid!" << std::endl;
- 
+
     return 0;
 }
+

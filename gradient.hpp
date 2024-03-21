@@ -97,8 +97,9 @@ std::vector<double> gradient_descent(const OptimizationParameters& params){
     std::vector<double> xk_n = params.initial_condition;
     double alpha = params.alpha_0;
     std::vector<double> grad_fk(params.dimension);
+    bool converged=false;
 
-    std::cout << "Applying gradient descent method" << std::endl;
+    std::cout << "Applying gradient descent method for " << params.expression_f << std::endl;
 
     for (int k = 0; k < params.max_iterations; ++k) {
 
@@ -113,6 +114,7 @@ std::vector<double> gradient_descent(const OptimizationParameters& params){
         // Check convergence criteria
         if (vector_norm(diff(xk_n,xk)) < params.epsilon_s || std::abs(evaluate_expression(params.expression_f, xk_n) - evaluate_expression(params.expression_f, xk)) < params.epsilon_r) {
             std::cout<< "Convergence achieved in " << k << " iterations" << std::endl;
+            converged=true;
             break; // Convergence achieved
         }
 
@@ -129,6 +131,8 @@ std::vector<double> gradient_descent(const OptimizationParameters& params){
         }
         xk=xk_n;
     }
+    if(converged==false)
+    std::cout << "Method not converged, max_iterations reached"<<std::endl;
     return xk; // Return the final result
 }
 

@@ -10,13 +10,13 @@ EpsilonS = 1e-6
 MaxIterations = 1000
 Sigma= 0.2
 StepSizeMethod = 'ApproximateLineSearch'
-UseNumericalGradient = false
+UseNumericalGradient = 0
 
 
 [Function]
 Expression = 'x1*x2 + 4*x1^4 + x2^2 + 3*x1'
-ExactGrad0 = 'x2 + 16*x1^3 +3'
-ExactGrad1 = 'x1 + 2*x2'
+ExactGrad_0 = 'x2 + 16*x1^3 +3'
+ExactGrad_1 = 'x1 + 2*x2'
 Dimension = 2
-x_00 = 0.
-x_01 = 0.
+x_0_0 = 0.
+x_0_1 = 0.

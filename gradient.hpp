@@ -5,13 +5,14 @@
 #include <functional>
 #include <cmath>
 
-
+//enumerator class to choose step strategy
 enum class StepSizeStrategy {
     ExponentialDecay,
     InverseDecay,
     ApproximateLineSearch
 };
 
+//Struct that contains all data
 struct OptimizationParameters {
     std::string expression_f; // Mathematical expression to minimize
     std::vector<std::string> expression_grad_f; // Mathematical expressions for gradient components
@@ -23,7 +24,8 @@ struct OptimizationParameters {
     double mu; // Decay parameter for step size strategies
     double sigma; // Armijo rule parameter
     StepSizeStrategy step_size_strategy; // Step size strategy
-    int dimension;
+    int dimension; //dimension of the problem
+    bool usenumGrad; //finite difference gradient option
 };
 
 // Function to compute the norm of a vector
@@ -47,7 +49,7 @@ std::vector<double> product(const double s,const  std::vector<double>& v){
 //vector difference
 std::vector<double> diff(const std::vector<double>& v1,const std::vector<double>& v2){
     std::vector<double> res(v1.size());
-    for(auto i=0; i<v1.size(); ++i){
+    for(size_t i=0; i<v1.size(); ++i){
         res[i]=(v1[i]-v2[i]);
     }
     return res;
@@ -90,47 +92,103 @@ double armijo_rule(double alpha_0, const std::vector<double>& xk, const std::vec
     return alpha;
 }
 
+//function to numerically evaluate the gradient by finite difference
+std::vector<double> finiteDifferenceGradient(const std::string& f, const std::vector<double>& x, double epsilon = 1e-5) {
+    int n = x.size();
+    std::vector<double> gradient(n);
+
+    for (int i = 0; i < n; ++i) {
+        std::vector<double> x_plus_epsilon = x;
+        x_plus_epsilon[i] += epsilon;
+        gradient[i] = (evaluate_expression(f,x_plus_epsilon) - evaluate_expression(f,x)) / epsilon;
+    }
+
+    return gradient;
+}
+
+//main function thath brings together the gradient descent method
 template<StepSizeStrategy Strategy>
 std::vector<double> gradient_descent(const OptimizationParameters& params){
    
+    //setting initial data
     std::vector<double> xk = params.initial_condition;
     std::vector<double> xk_n = params.initial_condition;
     double alpha = params.alpha_0;
+
+    //initializing an empty vector for the gradient and a bool to check convergence
     std::vector<double> grad_fk(params.dimension);
     bool converged=false;
 
-    std::cout << "Applying gradient descent method for " << params.expression_f << std::endl;
+    std::cout << "Applying gradient descent method for " << params.expression_f;
 
-    for (int k = 0; k < params.max_iterations; ++k) {
+    //using the Exact Graadient
+    if(!params.usenumGrad){
 
-        // Compute gradient of f at xk
-        for(int i=0; i< params.dimension; ++i){
-            grad_fk[i]=evaluate_expression(params.expression_grad_f[i],xk);
+        std::cout<<" using the exact gradient"<<std::endl;
+        //looping till kmax if convergence is not reached
+        for (int k = 0; k < params.max_iterations; ++k) {
+            
+            // Compute gradient of f at xk by evaluating it using the exact formula
+            for(int i=0; i< params.dimension; ++i){
+                grad_fk[i]=evaluate_expression(params.expression_grad_f[i],xk);
+                }
+            
+            // Update xk using gradient descent
+            xk_n=diff(xk,product(alpha,grad_fk));
+            
+            // Check convergence criteria
+            if (vector_norm(diff(xk_n,xk)) < params.epsilon_s || std::abs(evaluate_expression(params.expression_f, xk_n) - evaluate_expression(params.expression_f, xk)) < params.epsilon_r) {
+                 std::cout<< "Convergence achieved in " << k << " iterations" << std::endl;
+                 converged=true;
+                 break; // Convergence achieved
+                 }
+                 
+            // Update step size alpha using the chosen strategy
+            if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
+                alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
+                } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
+                    alpha = params.alpha_0 / (1 + params.mu * (k+1));
+                    } else {// Approximate line search using Armijo rule
+                        alpha = armijo_rule(params.alpha_0, xk, grad_fk, [&](const std::vector<double>& variables) {
+                        return evaluate_expression(params.expression_f, variables);}, params.sigma);
+                        }
+            
+            xk=xk_n;
+         }
+     } //using the Finite difference Graadient
+    else{
+
+           std::cout<<" using the fd gradient"<<std::endl;
+           
+           //looping till k_max if convergence is not reached
+           for (int k = 0; k < params.max_iterations; ++k) {
+            // Compute gradient of f at xk by finite differences
+            grad_fk=finiteDifferenceGradient(params.expression_f,xk);
+            
+            // Update xk using gradient descent
+            xk_n=diff(xk,product(alpha,grad_fk));
+            
+            // Check convergence criteria
+            if (vector_norm(diff(xk_n,xk)) < params.epsilon_s || std::abs(evaluate_expression(params.expression_f, xk_n) - evaluate_expression(params.expression_f, xk)) < params.epsilon_r) {
+                std::cout<< "Convergence achieved in " << k << " iterations" << std::endl;
+                 converged=true;
+                 break; // Convergence achieved
+                 }
+
+            // Update step size alpha using the chosen strategy
+            if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
+                alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
+                } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
+                    alpha = params.alpha_0 / (1 + params.mu * (k+1));
+                    } else {// Approximate line search using Armijo rule
+                        alpha = armijo_rule(params.alpha_0, xk, grad_fk, [&](const std::vector<double>& variables) {
+                        return evaluate_expression(params.expression_f, variables);}, params.sigma);
+                        }
+            
+            xk=xk_n;
+             }
         }
-
-        // Update xk using gradient descent
-        xk_n=diff(xk,product(alpha,grad_fk));
-
-        // Check convergence criteria
-        if (vector_norm(diff(xk_n,xk)) < params.epsilon_s || std::abs(evaluate_expression(params.expression_f, xk_n) - evaluate_expression(params.expression_f, xk)) < params.epsilon_r) {
-            std::cout<< "Convergence achieved in " << k << " iterations" << std::endl;
-            converged=true;
-            break; // Convergence achieved
-        }
-
-        // Update step size alpha using the chosen strategy
-        if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
-            alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
-        } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
-            alpha = params.alpha_0 / (1 + params.mu * (k+1));
-        } else {
-            // Approximate line search using Armijo rule
-            alpha = armijo_rule(params.alpha_0, xk, grad_fk, [&](const std::vector<double>& variables) {
-                return evaluate_expression(params.expression_f, variables);
-            }, params.sigma);
-        }
-        xk=xk_n;
-    }
+    
     if(converged==false)
     std::cout << "Method not converged, max_iterations reached"<<std::endl;
     return xk; // Return the final result
@@ -146,20 +204,21 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     std::string gradstring;
     std::string initstring;
     for(int i=0; i<params.dimension; ++i){
-    gradstring="Function/ExactGrad"+std::to_string(i);
-    initstring="Function/x_0"+std::to_string(i);
+    gradstring="Function/ExactGrad_"+std::to_string(i);
+    initstring="Function/x_0_"+std::to_string(i);
     params.expression_grad_f.push_back(config(gradstring.c_str(),""));
     params.initial_condition.push_back(config(initstring.c_str(),0.));
     }
     params.epsilon_r = config("GradientParameters/EpsilonR", 1e-6);
     params.epsilon_s = config("GradientParameters/EpsilonS", 1e-6);
-    params.alpha_0 = config("GradientParameters/Alpha0",0.15);
+    params.alpha_0 = config("GradientParameters/Alpha0",0.05);
     params.max_iterations = config("GradientParameters/MaxIterations", 1000);
     params.mu = config("GradientParameters/Mu", 0.2);
     params.sigma = config("GradientParameters/Sigma", 0.1);
+    params.usenumGrad= config("GradientParameters/UseNumericalGradient",false);
 
-    std::string strategy_str = config("GradientParameters/StepSizeMethod", "ExponentialDecay");
-    /*std::cout<<strategy_str<<std::endl;*/
+    std::string strategy_str = config("GradientParameters/StepSizeMethod", "ApproximateLineSearch");
+    
     if (strategy_str == "ExponentialDecay")
         params.step_size_strategy = StepSizeStrategy::ExponentialDecay;
     else if (strategy_str == "InverseDecay")

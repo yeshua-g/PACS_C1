@@ -19,18 +19,23 @@ To let the program work the User can just type `make` in the terminal and this w
 
 The Method choice and parameters setting is done trough a GetPot file called **dataGetPot**, whose options are described in the following, together with specific parameters for each method.
 
-Before starting it is **EXTREMELY IMPORTANT** to say that the code is written using the *muparser* library, thath is not included in this folder. So the User is required to change the first two lines of the makefile in order to set the proper path on his local machine
-
+Before starting it is !!!**EXTREMELY IMPORTANT**!!! to say that the code is written using the *muparser* library, thath is not included in this folder. So the User is required to change the first two lines of the **Makefile** in order to set the proper path on his local machine.
+```
+# Lines the User should change for setting the right path on his machine 
+CPPFLAGS := -I../../pacs-examples/Examples/include
+LDFLAGS := -L../../pacs-examples/Examples/lib
+LDLIBS := -lmuparser
+```
 ## Choosing the method
-To choose the Method the User have to open the **dataGetPot** file with an editor and modify the [Method] section. 
+To choose the Method the User has to open the **dataGetPot** file with an editor and modify the [Method] section. 
 ```
 [Method]
 choice='your_preferred_choice'
 
-// Change 'your_prefferred_choice with:
-//'Gradient' or 'HeavyBall' or 'Nesterov' or 'Adam'
+# Change 'your_prefferred_choice with:
+#'Gradient' or 'HeavyBall' or 'Nesterov' or 'Adam'
 ```
-In order to define the function the User have to modify the [Function] section of the **dataGetPot** file. Note that the insertion of the Exact Gradient is not compulsory since for every method it has been given the possibility to use a numerical approximation of it by finite differences.
+In order to define the function the User has to modify the [Function] section of the **dataGetPot** file. Note that the insertion of the Exact Gradient is not compulsory since for every method it has been given the possibility to use a numerical approximation of it by finite differences.
 ```
 [Function]
 
@@ -63,7 +68,7 @@ Here the User can choose among three strategies for computing $\alpha_k$ given $
 * *Inverse decay:* $\alpha_k=\frac{\alpha_0 }{1+\mu k}$
 * Approximate line search with *Armijo rule* that checks the following condition $f(x_k)-f(x_k-\alpha_0 \nabla f(x_k)) \ge \sigma \alpha_0 || \nabla f(x_k) ||^2$ and if not satisfied sets $\alpha_0=\frac{\alpha_0}{2}$ and repeats. The value that finally satisfies the condition is the desired $\alpha_k$
 
-To deal with Gradient descent parameters the User have to go in [GradientParameters] section of the **dataGetPot** file that looks like this:
+To deal with Gradient descent parameters the User has to go in [GradientParameters] section of the **dataGetPot** file that looks like this:
 ```
 [GradientParameters]
 Alpha0 = 0.05
@@ -84,7 +89,7 @@ The minimization problem is solved here by taking the following update rule:\
 given $d_0 = -\alpha_0 \nabla f(x_0)$ $$x_{k+1} = x_k + d_k$$ $$d_{k+1} = \eta d_k - \alpha_{k+1} \nabla f(x_{k+1})$$
 Here the User cannot longer choose *Armijo rule* since $d_k$ cannot be guaranteed to be a descent direction. So alongside *Exponential Decay* and *Inverse Decay* it has been added a possibility to use a *Fixed Alpha* ( $\alpha_0$ )
 
-To deal with Heavy-ball parameters the User have to go in [HeavyballParameters] section of the **dataGetPot** file that looks like this:
+To deal with Heavy-ball parameters the User has to go in [HeavyballParameters] section of the **dataGetPot** file that looks like this:
 ```
 [HeavyballParameters]
 Alpha0 = 0.05
@@ -104,7 +109,7 @@ UseNumericalGradient = 1
 The minimization problem is solved here by taking the following update rule:\
  $$y = x_k + \eta (x_k - x_{k-1})$$ $$x_{k+1} = y - \alpha_{k} \nabla f(y)$$
 Stepsize strategies are the same as for the Heavy-ball method.
-To deal with Nesterov parameters the User have to go in [Nesterov] section of the **dataGetPot** file that looks like this:
+To deal with Nesterov parameters the User has to go in [Nesterov] section of the **dataGetPot** file that looks like this:
 ```
 [Nesterov]
 Alpha0 = 0.05
@@ -127,7 +132,7 @@ $$v_k = \beta_2 v_{k-1} + (1-\beta_2) (\nabla f(x_k))^2$$
 $$\hat{m_k} = \frac{m_k}{1-\beta_1^k}$$
 $$\hat{v_k} = \frac{v_k}{1-\beta_2^k}$$
 $$x_k = x_{k-1} -\frac{\eta}{\sqrt{\hat{v_k} + \epsilon}} \hat{m_k}$$
-To deal with Adam parameters the User have to go in [Adam] section of the **dataGetPot** file that looks like this:
+To deal with Adam parameters the User has to go in [Adam] section of the **dataGetPot** file that looks like this:
 ```
 [Adam]
 Beta_1 = 0.9

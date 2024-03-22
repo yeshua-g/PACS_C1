@@ -1,3 +1,7 @@
+#ifndef Minimization_HPP
+#define Minimization_HPP
+
+
 #include<vector>
 #include<string>
 #include "GetPot"
@@ -588,3 +592,5 @@ std::vector<double> Adam(const OptimizationParameters& params){
     std::cout << "Method not converged, max_iterations reached"<<std::endl;
     return xk_n; // Return the final result
 }
+
+#endif

@@ -1,4 +1,4 @@
-#include "gradient.hpp"
+#include "minimization.hpp"
 
 int main(){
     OptimizationParameters data=read_optimization_parameters("dataGetPot");

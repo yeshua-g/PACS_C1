@@ -3,7 +3,7 @@ LDFLAGS := -L../../pacs-examples/Examples/lib
 LDLIBS := -lmuparser
 
 # Name of your executable
-TARGET := gradient_descent
+TARGET := minimization
 
 # Source files
 SRCS := $(wildcard *.cpp)

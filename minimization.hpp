@@ -255,7 +255,7 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     params.epsilon_s = config("GradientParameters/EpsilonS", 1e-6);
     params.alpha_0 = config("GradientParameters/Alpha0",0.05);
     params.max_iterations = config("GradientParameters/MaxIterations", 1000);
-    params.mu = config("GradientParameters/Mu", 0.2);
+    params.mu = config("GradientParameters/Mu", 0.02);
     params.sigma = config("GradientParameters/Sigma", 0.1);
     params.usenumGrad= config("GradientParameters/UseNumericalGradient",false);
 
@@ -275,7 +275,7 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     params.epsilon_r = config("HeavyballParameters/EpsilonR", 1e-6);
     params.epsilon_s = config("HeavyballParameters/EpsilonS", 1e-6);
     params.alpha_0 = config("HeavyballParameters/Alpha0",0.05);
-    params.mu = config("HeavyballParameters/Mu", 0.2);
+    params.mu = config("HeavyballParameters/Mu", 0.02);
     params.max_iterations = config("HeavyballParameters/MaxIterations", 1000);
     params.eta = config("HeavyballParameters/Eta", 0.9);
     params.usenumGrad= config("HeavyballParameters/UseNumericalGradient",false);
@@ -296,7 +296,7 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     params.epsilon_r = config("Nesterov/EpsilonR", 1e-6);
     params.epsilon_s = config("Nesterov/EpsilonS", 1e-6);
     params.alpha_0 = config("Nesterov/Alpha0",0.05);
-    params.mu = config("Nesterov/Mu", 0.2);
+    params.mu = config("Nesterov/Mu", 0.02);
     params.max_iterations = config("Nesterov/MaxIterations", 1000);
     params.eta = config("Nesterov/Eta", 0.9);
     params.usenumGrad= config("Nesterov/UseNumericalGradient",false);

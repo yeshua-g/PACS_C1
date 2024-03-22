@@ -19,7 +19,7 @@ To let the program work the User can just type `make` in the terminal and this w
 
 The Method choice and parameters setting is done trough a GetPot file called **dataGetPot**, whose options are described in the following, together with specific parameters for each method.
 
-Before starting it is !!!**EXTREMELY IMPORTANT**!!! to say that the code is written using the *muparser* library, thath is not included in this folder. So the User is required to change the first two lines of the **Makefile** in order to set the proper path on his local machine.
+Before starting it is !!!**EXTREMELY IMPORTANT**!!! to say that the code is written using the *muparser* library, that is not included in this folder. So the User is required to change the first two lines of the **Makefile** in order to set the proper path on his local machine.
 ```
 # Lines the User should change for setting the right path on his machine 
 CPPFLAGS := -I../../pacs-examples/Examples/include

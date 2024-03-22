@@ -13,7 +13,7 @@ MaxIterations = 1000
 Sigma= 0.2
 # Possible choices are 'ExponentialDecay',
 # 'InverseDecay' and 'ApproximateLineSearch'
-StepSizeMethod = 'ExponentialDecay'
+StepSizeMethod = 'ApproximateLineSearch'
 # Set this to 0 if you want to use the Exact Gradient
 # set it to 1 if you want to use the fd one
 UseNumericalGradient = 0

@@ -6,7 +6,7 @@ choice = 'Gradient'
 
 [GradientParameters]
 Alpha0 = 0.05
-Mu = 0.2
+Mu = 0.02
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
@@ -21,7 +21,7 @@ UseNumericalGradient = 0
 [HeavyballParameters]
 Alpha0 = 0.05
 Eta = 0.9
-Mu = 0.2
+Mu = 0.02
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
@@ -35,7 +35,7 @@ UseNumericalGradient = 0
 [Nesterov]
 Alpha0 = 0.05
 Eta = 0.9
-Mu = 0.2
+Mu = 0.02
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000

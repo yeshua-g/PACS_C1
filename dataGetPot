@@ -1,5 +1,5 @@
 [Method]
-choice = 'Gradient' 
+choice = 'HeavyBall' 
 
 
 [GradientParameters]
@@ -9,7 +9,17 @@ EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
 Sigma= 0.2
-StepSizeMethod = 'ApproximateLineSearch'
+StepSizeMethod = 'ExponentialDecay'
+UseNumericalGradient = 0
+
+[HeavyballParameters]
+Alpha0 = 0.05
+Eta = 0.9
+Mu = 0.2
+EpsilonR = 1e-6
+EpsilonS = 1e-6
+MaxIterations = 1000
+StepSizeMethod = 'InverseDecay'
 UseNumericalGradient = 0
 
 

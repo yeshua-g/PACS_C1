@@ -147,5 +147,5 @@ MaxIterations = 1000
 UseNumericalGradient = 0
 ```
 ## About the proposed example
-If the User runs the example provided with the default data it may seem that some methods don't converge smoothly with *Exponential Decay* strategy, this is because the proper value of $\mu$ changes between *Inverse Decay* and *Exponential Decay* strategies. So if the User is willing to use the *Exponential Decay* strategy a proprer value for $\mu$ could be $0.01$ for example.
+Regarding the example mentioned in the challenge by doing some researches i decided to take $\alpha_0=0.05$ and, since *Exponential Decay* strategy not converged very "smoothly", $\mu=0.02$ thath fitted both *Inverse* and *Exponential* strategies and reduced the number of iterations.
    

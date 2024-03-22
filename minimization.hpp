@@ -318,8 +318,8 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     params.epsilon_r = config("Adam/EpsilonR", 1e-6);
     params.epsilon_s = config("Adam/EpsilonS", 1e-6);
     params.eta = config("Adam/Eta", 0.01);
-    params.beta_1 = config("Adam/Beta_1", 0.2);
-    params.beta_2 = config("Adam/Beta_2", 0.2);
+    params.beta_1 = config("Adam/Beta_1", 0.9);
+    params.beta_2 = config("Adam/Beta_2", 0.999);
     params.max_iterations = config("Adam/MaxIterations", 1000);
     params.usenumGrad= config("Adam/UseNumericalGradient",false);
     }

@@ -146,7 +146,6 @@ MaxIterations = 1000
 # set it to 1 if you want to use the fd one
 UseNumericalGradient = 0
 ```
-
-
-
+## About the proposed example
+If the User runs the example provided with the default data it may seem that some methods don't converge smoothly with *Exponential Decay* strategy, this is because the proper value of $\mu$ changes between *Inverse Decay* and *Exponential Decay* strategies. So if the User is willing to use the *Exponential Decay* strategy a proprer value for $\mu$ could be $0.01$ for example.
    

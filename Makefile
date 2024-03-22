@@ -1,8 +1,9 @@
+# Lines the User should change for setting the right path on his machine 
 CPPFLAGS := -I../../pacs-examples/Examples/include
 LDFLAGS := -L../../pacs-examples/Examples/lib
 LDLIBS := -lmuparser
 
-# Name of your executable
+# Name of the executable
 TARGET := minimization
 
 # Source files

@@ -72,7 +72,7 @@ To deal with Gradient descent parameters the User has to go in [GradientParamete
 ```
 [GradientParameters]
 Alpha0 = 0.05
-Mu = 0.2
+Mu = 0.02
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
@@ -94,7 +94,7 @@ To deal with Heavy-ball parameters the User has to go in [HeavyballParameters] s
 [HeavyballParameters]
 Alpha0 = 0.05
 Eta = 0.9
-Mu = 0.2
+Mu = 0.02
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
@@ -114,7 +114,7 @@ To deal with Nesterov parameters the User has to go in [Nesterov] section of the
 [Nesterov]
 Alpha0 = 0.05
 Eta = 0.9
-Mu = 0.2
+Mu = 0.02
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
@@ -126,7 +126,7 @@ StepSizeMethod = 'FixedAlpha'
 UseNumericalGradient = 1
 ```
 ### Adam
-This method works in the following way ( abuse of notation for vectorial operations)
+This method works in the following way (abuse of notation for vectorial operations)
 $$m_k = \beta_1 m_{k-1} + (1-\beta_1) \nabla f(x_k)$$
 $$v_k = \beta_2 v_{k-1} + (1-\beta_2) (\nabla f(x_k))^2$$
 $$\hat{m_k} = \frac{m_k}{1-\beta_1^k}$$
@@ -147,5 +147,5 @@ MaxIterations = 1000
 UseNumericalGradient = 0
 ```
 ## About the proposed example
-Regarding the example mentioned in the challenge by doing some researches i decided to take $\alpha_0=0.05$ and, since *Exponential Decay* strategy not converged very "smoothly", $\mu=0.02$ thath fitted both *Inverse* and *Exponential* strategies and reduced the number of iterations.
+Regarding the example mentioned in the challenge by doing some researches i decided to take $\alpha_0=0.05$ and, since *Exponential Decay* strategy not converged very "smoothly", $\mu=0.02$ that fitted both *Inverse* and *Exponential* strategies and reduced the number of iterations.
    

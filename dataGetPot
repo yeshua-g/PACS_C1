@@ -1,4 +1,6 @@
 [Method]
+#Possible choices are 'Gradient','HeavyBall',
+# 'Nesterov' and 'Adam'
 choice = 'Adam' 
 
 
@@ -9,7 +11,11 @@ EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
 Sigma= 0.2
+# Possible choices are 'ExponentialDecay',
+# 'InverseDecay' and 'ApproximateLineSearch'
 StepSizeMethod = 'ApproximateLineSearch'
+# Set this to 0 if you want to use the Exact Gradient
+# set it to 1 if you want to use the fd one
 UseNumericalGradient = 1
 
 [HeavyballParameters]
@@ -19,7 +25,11 @@ Mu = 0.2
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
+# Possible choices are 'ExponentialDecay',
+# 'InverseDecay' and 'FixedAlpha'
 StepSizeMethod = 'FixedAlpha'
+# Set this to 0 if you want to use the Exact Gradient
+# set it to 1 if you want to use the fd one
 UseNumericalGradient = 1
 
 [Nesterov]
@@ -29,7 +39,11 @@ Mu = 0.2
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
+# Possible choices are 'ExponentialDecay',
+# 'InverseDecay' and 'FixedAlpha'
 StepSizeMethod = 'FixedAlpha'
+# Set this to 0 if you want to use the Exact Gradient
+# set it to 1 if you want to use the fd one
 UseNumericalGradient = 1
 
 [Adam]
@@ -40,13 +54,29 @@ Epsilon = 1e-8
 EpsilonR = 1e-6
 EpsilonS = 1e-6
 MaxIterations = 1000
+# Set this to 0 if you want to use the Exact Gradient
+# set it to 1 if you want to use the fd one
 UseNumericalGradient = 0
 
 
 [Function]
+
+#Function to minimize
 Expression = 'x1*x2 + 4*x1^4 + x2^2 + 3*x1'
+
+#Components of the gradient 
+#.... if the problem is n-dimensional just add the
+# needed components with the same notation up to
+# ExactGrad_n = '...'
 ExactGrad_0 = 'x2 + 16*x1^3 +3'
 ExactGrad_1 = 'x1 + 2*x2'
+
+# Dimension of the problem
 Dimension = 2
+
+#Initial condition
+#.... if the problem is n-dimensional just add the
+# needed components with the same notation up to
+# x_0_n = '...'
 x_0_0 = 0.
 x_0_1 = 0.

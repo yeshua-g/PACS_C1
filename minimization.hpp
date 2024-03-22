@@ -280,7 +280,7 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     params.eta = config("HeavyballParameters/Eta", 0.9);
     params.usenumGrad= config("HeavyballParameters/UseNumericalGradient",false);
 
-    std::string strategy_str = config("HeavyballParameters/StepSizeMethod", "ExponentialDecay");
+    std::string strategy_str = config("HeavyballParameters/StepSizeMethod", "FixedAlpha");
     
     if (strategy_str == "ExponentialDecay")
         params.step_size_strategy = StepSizeStrategy::ExponentialDecay;
@@ -301,7 +301,7 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     params.eta = config("Nesterov/Eta", 0.9);
     params.usenumGrad= config("Nesterov/UseNumericalGradient",false);
 
-    std::string strategy_str = config("Nesterov/StepSizeMethod", "ExponentialDecay");
+    std::string strategy_str = config("Nesterov/StepSizeMethod", "FixedAlpha");
     
     if (strategy_str == "ExponentialDecay")
         params.step_size_strategy = StepSizeStrategy::ExponentialDecay;

@@ -202,7 +202,7 @@ std::vector<double> gradient_descent(const OptimizationParameters& params){
     
     if(converged==false)
     std::cout << "Method not converged, max_iterations reached"<<std::endl;
-    return xk; // Return the final result
+    return xk_n; // Return the final result
 }
 
 OptimizationParameters read_optimization_parameters(const std::string& filename) {
@@ -350,5 +350,5 @@ std::vector<double> heavy_ball(const OptimizationParameters& params){
     
     if(converged==false)
     std::cout << "Method not converged, max_iterations reached"<<std::endl;
-    return xk; // Return the final result
+    return xk_n; // Return the final result
 }

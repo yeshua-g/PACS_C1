@@ -20,7 +20,7 @@ enum class StepSizeStrategy {
 
 //Struct that contains all data
 struct OptimizationParameters {
-    std::string Method;
+    std::string Method;// Chosen method to apply for the problem
     std::string expression_f; // Mathematical expression to minimize
     std::vector<std::string> expression_grad_f; // Mathematical expressions for gradient components
     std::vector<double> initial_condition; // Initial guess
@@ -33,7 +33,7 @@ struct OptimizationParameters {
     StepSizeStrategy step_size_strategy; // Step size strategy
     int dimension; //dimension of the problem
     bool usenumGrad; //finite difference gradient option
-    double eta; //parameter for heavy ball and nesterov
+    double eta; //parameter for heavy ball,nesterov or Adam
     double epsilon; //parameter for Adam
     double beta_1; //parameter for Adam
     double beta_2; //parameter for Adam;
@@ -48,6 +48,7 @@ double vector_norm(const std::vector<double>& vec) {
     return std::sqrt(norm);
 }
 
+//Function to compute the elementwise product between vectors, used in Adam function 
 std::vector<double> elementwise_prod(const std::vector<double>& vec1,const std::vector<double>& vec2) {
     std::vector<double> res(vec1.size());
     for (size_t i=0; i<vec1.size();++i) {
@@ -65,7 +66,7 @@ std::vector<double> product(const double s,const  std::vector<double>& v){
     return res;
 }
 
-//scalar times vector produt
+//Vector division by a scalar
 std::vector<double> div(const double s,const  std::vector<double>& v){
     std::vector<double> res(v.size());
     for (size_t i = 0; i < v.size(); ++i) {
@@ -92,7 +93,7 @@ std::vector<double> diff(const std::vector<double>& v1,const std::vector<double>
     return res;
 }
 
-//print vector
+//print vectorial result
 void print(const std::vector<double>& v){
     std::cout<<"The computed minimum is:"<<std::endl;
     std::cout<<" [ " ;
@@ -109,7 +110,7 @@ double evaluate_expression(const std::string& expression, const std::vector<doub
     parser.SetExpr(expression);
     
     // Define variables
-    std::vector<double> x_values(variables); // Make a copy to ensure they remain valid
+    std::vector<double> x_values(variables); 
     for (size_t i = 0; i < variables.size(); ++i) {
         parser.DefineVar("x" + std::to_string(i + 1), &x_values[i]);
     }
@@ -124,7 +125,7 @@ double armijo_rule(double alpha_0, const std::vector<double>& xk, const std::vec
     double alpha = alpha_0;
     
     while (f(xk) - f(diff(xk,product(alpha,grad_fk))) < sigma * alpha * vector_norm(grad_fk) * vector_norm(grad_fk)) {
-        alpha /= 2.0; // Reduce alpha if Armijo condition is not satisfied
+        alpha /= 2.0; 
     }
     return alpha;
 }
@@ -182,9 +183,9 @@ std::vector<double> gradient_descent(const OptimizationParameters& params){
                  
             // Update step size alpha using the chosen strategy
             if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
-                alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
+                alpha = params.alpha_0 * std::exp(-params.mu * (k));
                 } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
-                    alpha = params.alpha_0 / (1 + params.mu * (k+1));
+                    alpha = params.alpha_0 / (1 + params.mu * (k));
                     } else {// Approximate line search using Armijo rule
                         alpha = armijo_rule(params.alpha_0, xk, grad_fk, [&](const std::vector<double>& variables) {
                         return evaluate_expression(params.expression_f, variables);}, params.sigma);
@@ -214,9 +215,9 @@ std::vector<double> gradient_descent(const OptimizationParameters& params){
 
             // Update step size alpha using the chosen strategy
             if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
-                alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
+                alpha = params.alpha_0 * std::exp(-params.mu * (k));
                 } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
-                    alpha = params.alpha_0 / (1 + params.mu * (k+1));
+                    alpha = params.alpha_0 / (1 + params.mu * (k));
                     } else {// Approximate line search using Armijo rule
                         alpha = armijo_rule(params.alpha_0, xk, grad_fk, [&](const std::vector<double>& variables) {
                         return evaluate_expression(params.expression_f, variables);}, params.sigma);
@@ -328,6 +329,7 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     return params;
 }
 
+//heavy ball method
 template<StepSizeStrategy Strategy>
 std::vector<double> heavy_ball(const OptimizationParameters& params){
    
@@ -345,27 +347,32 @@ std::vector<double> heavy_ball(const OptimizationParameters& params){
     if(!params.usenumGrad){
 
         std::cout<<" using the exact gradient"<<std::endl;
-        //looping till kmax if convergence is not reached
+        
+        //initializing the exact gradient and d
         for(int i=0; i< params.dimension; ++i){
                 grad_fk[i]=evaluate_expression(params.expression_grad_f[i],xk);
                 }
         d=product(-alpha,grad_fk);
 
+        //looping till kmax if convergence is not reached
         for (int k = 0; k < params.max_iterations; ++k) {
             
+            //update xk
             xk_n=sum(xk,d);
-
+            
+            //compute new gradient
              for(int i=0; i< params.dimension; ++i){
                 grad_fk[i]=evaluate_expression(params.expression_grad_f[i],xk_n);
                 }
             
             // Update step size alpha using the chosen strategy
              if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
-                alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
+                alpha = params.alpha_0 * std::exp(-params.mu * (k));
                 } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
-                    alpha = params.alpha_0 / (1 + params.mu * (k+1));
+                    alpha = params.alpha_0 / (1 + params.mu * (k));
                     }
 
+            //update d
             d=diff(product(params.eta,d),product(alpha,grad_fk));
             
             // Check convergence criteria
@@ -380,22 +387,28 @@ std::vector<double> heavy_ball(const OptimizationParameters& params){
      } //using the Finite difference Graadient
     else{
          std::cout<<" using the fd gradient"<<std::endl;
+
+         //initializing the fd gradient and d
          grad_fk=finiteDifferenceGradient(params.expression_f,xk);
          d=product(-alpha,grad_fk);
 
+        //  //looping till kmax if convergence is not reached
         for (int k = 0; k < params.max_iterations; ++k) {
-            
+
+
+            // updating x and the gradient
             xk_n=sum(xk,d);
             grad_fk=finiteDifferenceGradient(params.expression_f,xk_n);
             
             
             // Update step size alpha using the chosen strategy
             if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
-                alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
+                alpha = params.alpha_0 * std::exp(-params.mu * (k));
                 } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
-                    alpha = params.alpha_0 / (1 + params.mu * (k+1));
+                    alpha = params.alpha_0 / (1 + params.mu * (k));
                     } 
-            
+
+            //update d
             d=diff(product(params.eta,d),product(alpha,grad_fk));
             
             // Check convergence criteria
@@ -432,12 +445,14 @@ std::vector<double> Nesterov(const OptimizationParameters& params){
     if(!params.usenumGrad){
 
         std::cout<<" using the exact gradient"<<std::endl;
-        //looping till kmax if convergence is not reached
+        
+        //initializing the gradient and xk
         for(int i=0; i< params.dimension; ++i){
                 grad_fk[i]=evaluate_expression(params.expression_grad_f[i],xk);
                 }
         xk_n=diff(xk,product(alpha,grad_fk));
-
+        
+        //looping till kmax if convergence is not reached
         for (int k = 0; k < params.max_iterations; ++k) {
             
             y=sum(xk_n,product(params.eta,diff(xk_n,xk)));
@@ -448,11 +463,12 @@ std::vector<double> Nesterov(const OptimizationParameters& params){
             
             // Update step size alpha using the chosen strategy
             if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
-                alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
+                alpha = params.alpha_0 * std::exp(-params.mu * (k));
                 } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
-                    alpha = params.alpha_0 / (1 + params.mu * (k+1));
+                    alpha = params.alpha_0 / (1 + params.mu * (k));
                     }
 
+            //updating xk
             xk_n=diff(y,product(alpha,grad_fk));
             
             // Check convergence criteria
@@ -467,10 +483,12 @@ std::vector<double> Nesterov(const OptimizationParameters& params){
      } //using the Finite difference Graadient
     else{
          std::cout<<" using the fd gradient"<<std::endl;
-        //looping till kmax if convergence is not reached
+        
+        //Initializing gradient by fd and xk
         grad_fk=finiteDifferenceGradient(params.expression_f,xk);
         xk_n=diff(xk,product(alpha,grad_fk));
 
+        //looping till kmax if convergence is not reached
         for (int k = 0; k < params.max_iterations; ++k) {
             
             y=sum(xk_n,product(params.eta,diff(xk_n,xk)));
@@ -479,11 +497,12 @@ std::vector<double> Nesterov(const OptimizationParameters& params){
             
             // Update step size alpha using the chosen strategy
              if constexpr (Strategy == StepSizeStrategy::ExponentialDecay) {
-                alpha = params.alpha_0 * std::exp(-params.mu * (k+1));
+                alpha = params.alpha_0 * std::exp(-params.mu * (k));
                 } else if constexpr (Strategy == StepSizeStrategy::InverseDecay) {
-                    alpha = params.alpha_0 / (1 + params.mu * (k+1));
+                    alpha = params.alpha_0 / (1 + params.mu * (k));
                     }
 
+            //updating xk
             xk_n=diff(y,product(alpha,grad_fk));
             
             // Check convergence criteria
@@ -526,16 +545,20 @@ std::vector<double> Adam(const OptimizationParameters& params){
     if(!params.usenumGrad){
 
         std::cout<<" using the exact gradient"<<std::endl;
-        //looping till kmax if convergence is not reached
-
+        
+    //looping till kmax if convergence is not reached
     for (int k = 0; k < params.max_iterations; ++k) {
+
+        //computing the gradient
         for(int i=0; i< params.dimension; ++i){
                 grad_fk[i]=evaluate_expression(params.expression_grad_f[i],xk);
                 }
-
+        
+        //Computing m and v
         m=sum(product(beta_1,m),product((1-beta_1),grad_fk));
         v=sum(product(beta_2,v),product((1-beta_2),elementwise_prod(grad_fk,grad_fk)));
 
+        //Computing m_hat and v_hat
         m_hat=div((1-beta_1_t),m);
         v_hat=div((1-beta_2_t),v);
         
@@ -552,6 +575,7 @@ std::vector<double> Adam(const OptimizationParameters& params){
                  break; // Convergence achieved
                  }
 
+            //"elevating" betas
             beta_1_t*=beta_1;
             beta_2_t*=beta_2;     
             xk=xk_n;
@@ -559,14 +583,16 @@ std::vector<double> Adam(const OptimizationParameters& params){
      } //using the Finite difference Graadient
     else{
           std::cout<<" using the fd gradient"<<std::endl;
-        //looping till kmax if convergence is not reached
-
+        
+    //looping till kmax if convergence is not reached
     for (int k = 0; k < params.max_iterations; ++k) {
      
+        //computing gradient by df, m and v
         grad_fk=finiteDifferenceGradient(params.expression_f,xk);
         m=sum(product(beta_1,m),product((1-beta_1),grad_fk));
         v=sum(product(beta_2,v),product((1-beta_2),elementwise_prod(grad_fk,grad_fk)));
 
+        //computing m_hat and v_hat
         m_hat=div((1-beta_1_t),m);
         v_hat=div((1-beta_2_t),v);
         
@@ -583,6 +609,7 @@ std::vector<double> Adam(const OptimizationParameters& params){
                  break; // Convergence achieved
                  }
                  
+            //"elevating" betas
             beta_1_t*=beta_1;
             beta_2_t*=beta_2;
             xk=xk_n;

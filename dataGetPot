@@ -1,7 +1,7 @@
 [Method]
 #Possible choices are 'Gradient','HeavyBall',
 # 'Nesterov' and 'Adam'
-choice = 'Adam' 
+choice = 'Gradient' 
 
 
 [GradientParameters]
@@ -16,7 +16,7 @@ Sigma= 0.2
 StepSizeMethod = 'ApproximateLineSearch'
 # Set this to 0 if you want to use the Exact Gradient
 # set it to 1 if you want to use the fd one
-UseNumericalGradient = 1
+UseNumericalGradient = 0
 
 [HeavyballParameters]
 Alpha0 = 0.05
@@ -30,7 +30,7 @@ MaxIterations = 1000
 StepSizeMethod = 'FixedAlpha'
 # Set this to 0 if you want to use the Exact Gradient
 # set it to 1 if you want to use the fd one
-UseNumericalGradient = 1
+UseNumericalGradient = 0
 
 [Nesterov]
 Alpha0 = 0.05
@@ -44,7 +44,7 @@ MaxIterations = 1000
 StepSizeMethod = 'FixedAlpha'
 # Set this to 0 if you want to use the Exact Gradient
 # set it to 1 if you want to use the fd one
-UseNumericalGradient = 1
+UseNumericalGradient = 0
 
 [Adam]
 Beta_1 = 0.9

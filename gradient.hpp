@@ -30,6 +30,9 @@ struct OptimizationParameters {
     int dimension; //dimension of the problem
     bool usenumGrad; //finite difference gradient option
     double eta; //parameter for heavy ball and nesterov
+    double epsilon; //parameter for Adam
+    double beta_1; //parameter for Adam
+    double beta_2; //parameter for Adam;
 };
 
 // Function to compute the norm of a vector
@@ -41,11 +44,28 @@ double vector_norm(const std::vector<double>& vec) {
     return std::sqrt(norm);
 }
 
+std::vector<double> elementwise_prod(const std::vector<double>& vec1,const std::vector<double>& vec2) {
+    std::vector<double> res(vec1.size());
+    for (size_t i=0; i<vec1.size();++i) {
+         res[i] = vec1[i] * vec2[i];
+    }
+    return res;
+}
+
 //scalar times vector produt
 std::vector<double> product(const double s,const  std::vector<double>& v){
     std::vector<double> res(v.size());
     for (size_t i = 0; i < v.size(); ++i) {
         res[i] = v[i] * s;
+    }
+    return res;
+}
+
+//scalar times vector produt
+std::vector<double> div(const double s,const  std::vector<double>& v){
+    std::vector<double> res(v.size());
+    for (size_t i = 0; i < v.size(); ++i) {
+        res[i] = v[i] / s;
     }
     return res;
 }
@@ -287,6 +307,19 @@ OptimizationParameters read_optimization_parameters(const std::string& filename)
     else
         throw std::invalid_argument("Invalid step size strategy");
     }
+     //reading specific parameters for Adam
+    else if(params.Method=="Adam"){
+    params.epsilon = config("Adam/Epsilon", 1e-8);
+    params.epsilon_r = config("Adam/EpsilonR", 1e-6);
+    params.epsilon_s = config("Adam/EpsilonS", 1e-6);
+    params.eta = config("Adam/Eta", 0.01);
+    params.beta_1 = config("Adam/Beta_1", 0.2);
+    params.beta_2 = config("Adam/Beta_2", 0.2);
+    params.max_iterations = config("Adam/MaxIterations", 1000);
+    params.usenumGrad= config("Adam/UseNumericalGradient",false);
+    }
+
+    else throw std::invalid_argument("Invalid Method");
 
     return params;
 }
@@ -461,6 +494,96 @@ std::vector<double> Nesterov(const OptimizationParameters& params){
            
         }
     
+    if(converged==false)
+    std::cout << "Method not converged, max_iterations reached"<<std::endl;
+    return xk_n; // Return the final result
+}
+
+
+std::vector<double> Adam(const OptimizationParameters& params){
+   
+    //setting initial data
+    std::vector<double> xk = params.initial_condition;
+    std::vector<double> xk_n(xk.size());
+    std::vector<double> m(xk.size(),0);
+    std::vector<double> m_hat(xk.size(),0);
+    std::vector<double> v(xk.size(),0);
+    std::vector<double> v_hat(xk.size(),0);
+    double beta_1 = params.beta_1;
+    double beta_2 = params.beta_2;
+    double beta_1_t = params.beta_1;
+    double beta_2_t = params.beta_2;
+    std::vector<double> grad_fk(xk.size());
+    bool converged=false;
+
+    std::cout << "Applying Adam method for " << params.expression_f;
+
+    //using the Exact Graadient
+    if(!params.usenumGrad){
+
+        std::cout<<" using the exact gradient"<<std::endl;
+        //looping till kmax if convergence is not reached
+
+    for (int k = 0; k < params.max_iterations; ++k) {
+        for(int i=0; i< params.dimension; ++i){
+                grad_fk[i]=evaluate_expression(params.expression_grad_f[i],xk);
+                }
+
+        m=sum(product(beta_1,m),product((1-beta_1),grad_fk));
+        v=sum(product(beta_2,v),product((1-beta_2),elementwise_prod(grad_fk,grad_fk)));
+
+        m_hat=div((1-beta_1_t),m);
+        v_hat=div((1-beta_2_t),v);
+        
+        for (size_t i = 0; i < xk_n.size(); ++i) {
+            
+            // Update parameters
+            xk_n[i] = xk[i] -( params.eta/ (std::sqrt(v_hat[i]) + params.epsilon)) * m_hat[i];
+        }
+            
+            // Check convergence criteria
+            if (vector_norm(diff(xk_n,xk)) < params.epsilon_s || std::abs(evaluate_expression(params.expression_f, xk_n) - evaluate_expression(params.expression_f, xk)) < params.epsilon_r) {
+                 std::cout<< "Convergence achieved in " << k << " iterations" << std::endl;
+                 converged=true;
+                 break; // Convergence achieved
+                 }
+
+            beta_1_t*=beta_1;
+            beta_2_t*=beta_2;     
+            xk=xk_n;
+         }
+     } //using the Finite difference Graadient
+    else{
+          std::cout<<" using the fd gradient"<<std::endl;
+        //looping till kmax if convergence is not reached
+
+    for (int k = 0; k < params.max_iterations; ++k) {
+     
+        grad_fk=finiteDifferenceGradient(params.expression_f,xk);
+        m=sum(product(beta_1,m),product((1-beta_1),grad_fk));
+        v=sum(product(beta_2,v),product((1-beta_2),elementwise_prod(grad_fk,grad_fk)));
+
+        m_hat=div((1-beta_1_t),m);
+        v_hat=div((1-beta_2_t),v);
+        
+        for (size_t i = 0; i < xk_n.size(); ++i) {
+            
+            // Update parameters
+            xk_n[i] = xk[i] -( params.eta/ (std::sqrt(v_hat[i]) + params.epsilon)) * m_hat[i];
+        }
+            
+            // Check convergence criteria
+            if (vector_norm(diff(xk_n,xk)) < params.epsilon_s || std::abs(evaluate_expression(params.expression_f, xk_n) - evaluate_expression(params.expression_f, xk)) < params.epsilon_r) {
+                 std::cout<< "Convergence achieved in " << k << " iterations" << std::endl;
+                 converged=true;
+                 break; // Convergence achieved
+                 }
+                 
+            beta_1_t*=beta_1;
+            beta_2_t*=beta_2;
+            xk=xk_n;
+        }
+    }
     if(converged==false)
     std::cout << "Method not converged, max_iterations reached"<<std::endl;
     return xk_n; // Return the final result

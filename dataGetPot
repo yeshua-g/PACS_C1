@@ -1,5 +1,5 @@
 [Method]
-choice = 'Nesterov' 
+choice = 'Adam' 
 
 
 [GradientParameters]
@@ -31,6 +31,16 @@ EpsilonS = 1e-6
 MaxIterations = 1000
 StepSizeMethod = 'FixedAlpha'
 UseNumericalGradient = 1
+
+[Adam]
+Beta_1 = 0.9
+Beta_2 = 0.999
+Eta = 0.01
+Epsilon = 1e-8
+EpsilonR = 1e-6
+EpsilonS = 1e-6
+MaxIterations = 1000
+UseNumericalGradient = 0
 
 
 [Function]

@@ -47,6 +47,12 @@ int main(){
     }
     }
 
+    else if(data.Method=="Adam"){
+        res=Adam(data);
+    }
+
+    else throw std::invalid_argument("Invalid method");
+
 
 
     print(res);

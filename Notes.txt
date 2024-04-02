@@ -1,0 +1,11 @@
+README is very detailed and all the instructions are clear.
+Good use of GitHub.
+
+You could have divided the methods defined in minimization.hpp into different header files, grouped by their purpose. For instance:
+    - functions for std::vectors
+    - OptimizationParameters struct + expressions evaluation and parameters reading from file
+    - numerical methods
+and then collect all the header files in an include foalder.
+
+To avoid code duplication, you could have implemented functions to choose the step size update and check the convergence.
+There is no need for defining new variables containing all the values of the attributes in the OptimizationParameters struct.
